@@ -54,13 +54,13 @@
   <div class="sec"><div class="st">পিতার তথ্য · Father</div><div class="fg">
     <div class="f"><label>Father (Bengali) <span class="req">*</span></label><input id="af_fatherBn" placeholder="বাংলায় নাম" oninput="eBn(this)"><div class="fm" id="m_fatherBn"></div></div>
     <div class="f"><label>Father (English) <span class="req">*</span></label><input id="af_fatherEn" placeholder="English" oninput="eEn(this)"><div class="fm" id="m_fatherEn"></div></div>
-    <div class="f"><label>Father Phone</label><input id="af_fatherPhone" placeholder="+880 01XXXXXXXXX" type="tel"></div>
+    <div class="f"><label>Father Phone</label><input id="af_fatherPhone" placeholder="+880 01XXXXXXXXX" type="tel" oninput="vPhone(this)"><div class="fh2" id="af_fatherPhoneHint"></div></div>
   </div></div>
 
   <div class="sec"><div class="st">মাতার তথ্য · Mother</div><div class="fg">
     <div class="f"><label>Mother (Bengali) <span class="req">*</span></label><input id="af_motherBn" placeholder="বাংলায় নাম" oninput="eBn(this)"><div class="fm" id="m_motherBn"></div></div>
     <div class="f"><label>Mother (English) <span class="req">*</span></label><input id="af_motherEn" placeholder="English" oninput="eEn(this)"><div class="fm" id="m_motherEn"></div></div>
-    <div class="f"><label>Mother Phone</label><input id="af_motherPhone" placeholder="+880 01XXXXXXXXX" type="tel"></div>
+    <div class="f"><label>Mother Phone</label><input id="af_motherPhone" placeholder="+880 01XXXXXXXXX" type="tel" oninput="vPhone(this)"><div class="fh2" id="af_motherPhoneHint"></div></div>
   </div></div>
 
   <div class="sec"><div class="st">অভিভাবকের তথ্য · Guardian</div><div class="fg">
@@ -70,7 +70,7 @@
 
   <div class="sec"><div class="st">বিকল্প অভিভাবক · Alt Guardian</div><div class="fg">
     <div class="f"><label>Name</label><input id="af_altName" placeholder="If parents unavailable"></div>
-    <div class="f"><label>Phone</label><input id="af_altPhone" placeholder="+880 01XXXXXXXXX" type="tel"></div>
+    <div class="f"><label>Phone</label><input id="af_altPhone" placeholder="+880 01XXXXXXXXX" type="tel" oninput="vPhone(this)"><div class="fh2" id="af_altPhoneHint"></div></div>
     <div class="f"><label>Relation</label><input id="af_altRelation" placeholder="Uncle, Aunt..."></div>
   </div></div>
 
@@ -104,6 +104,25 @@ var FIREBASE_URL = 'https://sms-admission-4f632-default-rtdb.asia-southeast1.fir
 var _p1=null,_p2=null;
 function eBn(el){el.value=el.value.replace(/[A-Za-z0-9]/g,'');}
 function eEn(el){el.value=el.value.replace(/[^\x20-\x7E]/g,'');}
+var PDB=[{d:'880',f:'🇧🇩',n:'Bangladesh',mx:13},{d:'91',f:'🇮🇳',n:'India',mx:12},{d:'92',f:'🇵🇰',n:'Pakistan',mx:12},{d:'966',f:'🇸🇦',n:'Saudi Arabia',mx:12},{d:'971',f:'🇦🇪',n:'UAE',mx:12},{d:'974',f:'🇶🇦',n:'Qatar',mx:11},{d:'965',f:'🇰🇼',n:'Kuwait',mx:11},{d:'968',f:'🇴🇲',n:'Oman',mx:11},{d:'973',f:'🇧🇭',n:'Bahrain',mx:11},{d:'60',f:'🇲🇾',n:'Malaysia',mx:11},{d:'65',f:'🇸🇬',n:'Singapore',mx:10},{d:'1',f:'🇺🇸',n:'US/Canada',mx:11},{d:'44',f:'🇬🇧',n:'UK',mx:12},{d:'39',f:'🇮🇹',n:'Italy',mx:12}];
+PDB.sort(function(a,b){return b.d.length-a.d.length;});
+function vPhone(el){
+  var v=el.value.replace(/[^+0-9\s\-]/g,'');
+  if(v.indexOf('+')>0)v='+'+v.replace(/\+/g,'');
+  var hint=el.nextElementSibling||el.parentElement.querySelector('.fh2');
+  if(!v||v==='+'){el.value=v;if(hint)hint.textContent='';return;}
+  var digits=v.replace(/[\s\-]/g,'');
+  if(digits.startsWith('+'))digits=digits.slice(1);
+  var country=null;
+  for(var i=0;i<PDB.length;i++){if(digits.startsWith(PDB[i].d)){country=PDB[i];break;}}
+  if(country){
+    if(digits.length>country.mx){v='+'+digits.slice(0,country.mx);}
+    if(hint)hint.textContent=country.f+' '+country.n+' (+'+country.d+')';
+  }else{
+    if(hint)hint.textContent='Start with country code, e.g. +880';
+  }
+  el.value=v;
+}
 function hdP(i){if(!i.files||!i.files[0])return;var f=i.files[0];if(f.size>2e6){st('Max 2MB');return;}var r=new FileReader();r.onload=function(e){_p1=e.target.result;document.getElementById('pp1').innerHTML='<img src="'+_p1+'">';document.getElementById('pr1').style.display='inline-block';};r.readAsDataURL(f);}
 function rmP(){_p1=null;document.getElementById('pp1').innerHTML='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.4"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';document.getElementById('pr1').style.display='none';document.getElementById('pf1').value='';}
 function hdT(i){if(!i.files||!i.files[0])return;var f=i.files[0];if(f.size>3e6){st('Max 3MB');return;}var r=new FileReader();r.onload=function(e){_p2=e.target.result;document.getElementById('pp2').innerHTML='<img src="'+_p2+'" style="width:100%;height:100%;object-fit:cover">';document.getElementById('pr2').style.display='inline-block';};r.readAsDataURL(f);}
