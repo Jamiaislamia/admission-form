@@ -97,7 +97,29 @@
 <div class="ss" id="ss">
   <div class="si"><svg fill="none" stroke="#5cf8a0" stroke-width="1.8" viewBox="0 0 22 22" width="30" height="30"><path d="M4 11l5 5 9-9"/></svg></div>
   <div style="font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--green);margin-bottom:8px">আবেদন জমা হয়েছে!</div>
-  <div class="fs">আপনার ভর্তি আবেদন গৃহীত হয়েছে।<br>প্রতিষ্ঠান পর্যালোচনা করে আপনার সাথে যোগাযোগ করবে।<br><br><span style="font-size:10px;color:var(--muted2)">আবেদন আইডি: <strong id="sId" style="color:var(--accent)">—</strong></span></div>
+  <div class="fs">আপনার ভর্তি আবেদন সফলভাবে গৃহীত হয়েছে।<br><br>
+    <span style="font-size:12px;color:var(--text);line-height:1.8;">অনুগ্রহ করে আপনার আবেদন পর্যালোচনার জন্য <strong style="color:var(--amber);">কমপক্ষে ৫ কার্যদিবস</strong> অপেক্ষা করুন। নীচের আবেদন আইডি সংরক্ষণ করুন — এটি দিয়ে আপনি যেকোনো সময় আবেদনের অবস্থা যাচাই করতে পারবেন।</span>
+    <br><br>
+    <span style="font-size:10px;color:var(--muted2);">Please allow at least <strong style="color:var(--amber);">5 business days</strong> for your application to be reviewed. Save the Application ID below — you can use it anytime to check your application status.</span>
+    <br><br>
+    <div style="background:var(--surface2);border:1px solid var(--accent);border-radius:8px;padding:14px;display:inline-block;margin:8px 0;">
+      <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);">আবেদন আইডি · Application ID</div>
+      <div id="sId" style="font-size:18px;font-weight:500;color:var(--accent);letter-spacing:.12em;margin-top:4px;">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APPLICATION STATUS CHECKER ══ -->
+<div id="statusChecker" style="max-width:520px;margin:40px auto;padding:0 16px;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;">
+    <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">📋 আবেদনের অবস্থা যাচাই · Check Application Status</div>
+    <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:14px;">আপনার আবেদন আইডি লিখুন · Enter your Application ID to check status</div>
+    <div style="display:flex;gap:8px;">
+      <input id="statusAppId" placeholder="e.g. APP-MN8ABS3K" style="flex:1;padding:10px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:.06em;outline:none;" type="text" onkeydown="if(event.key==='Enter')checkAppStatus()"/>
+      <button onclick="checkAppStatus()" style="padding:10px 18px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:11px;letter-spacing:.08em;cursor:pointer;white-space:nowrap;">যাচাই · Check</button>
+    </div>
+    <div id="statusResult" style="margin-top:14px;"></div>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -123,6 +145,34 @@ function sub(){
   if(!ok){st('সকল প্রয়োজনীয় তথ্য পূরণ করুন');return;}
   var btn=document.querySelector('.bsub');btn.textContent='জমা হচ্ছে...';btn.disabled=true;
   fetch(FIREBASE_URL+'/admissions.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}).then(function(r){return r.json();}).then(function(){document.getElementById('formArea').style.display='none';document.getElementById('ss').classList.add('show');document.getElementById('sId').textContent=d.appId;}).catch(function(){try{var a=JSON.parse(localStorage.getItem('sms_admissions')||'[]');a.push(d);localStorage.setItem('sms_admissions',JSON.stringify(a));}catch(e){}document.getElementById('formArea').style.display='none';document.getElementById('ss').classList.add('show');document.getElementById('sId').textContent=d.appId;st('স্থানীয়ভাবে সংরক্ষিত');}).finally(function(){btn.textContent='আবেদন জমা দিন · Submit →';btn.disabled=false;});
+}
+
+function checkAppStatus(){
+  var appId=(document.getElementById('statusAppId').value||'').trim().toUpperCase();
+  var box=document.getElementById('statusResult');
+  if(!appId){box.innerHTML='<div style="color:var(--red);font-size:11px;">অনুগ্রহ করে আবেদন আইডি লিখুন · Please enter an Application ID</div>';return;}
+  box.innerHTML='<div style="color:var(--muted);font-size:11px;">অনুসন্ধান হচ্ছে... · Searching...</div>';
+  fetch(FIREBASE_URL+'/admissions.json').then(function(r){return r.json();}).then(function(data){
+    if(!data){box.innerHTML='<div style="color:var(--red);font-size:11px;">কোনো আবেদন পাওয়া যায়নি · No applications found</div>';return;}
+    var found=null;
+    Object.keys(data).forEach(function(key){var app=data[key];if(app&&app.appId&&app.appId.toUpperCase()===appId)found=app;});
+    if(!found){box.innerHTML='<div style="background:rgba(248,92,92,.08);border:1px solid rgba(248,92,92,.2);border-radius:8px;padding:14px;"><div style="font-size:12px;color:var(--red);margin-bottom:4px;">❌ আবেদন খুঁজে পাওয়া যায়নি · Application Not Found</div><div style="font-size:10px;color:var(--muted);">আবেদন আইডি সঠিকভাবে লিখুন · Please verify your Application ID and try again.</div></div>';return;}
+    var s=found.status||'pending';
+    if(s==='approved'){
+      box.innerHTML='<div style="background:rgba(92,248,160,.08);border:1px solid rgba(92,248,160,.2);border-radius:8px;padding:16px;"><div style="font-size:14px;color:var(--green);margin-bottom:8px;">✅ আবেদন অনুমোদিত হয়েছে! · Application Approved!</div><div style="font-size:11px;color:var(--text);line-height:1.8;">অভিনন্দন! আপনার ভর্তি আবেদন অনুমোদিত হয়েছে।<br>Congratulations! Your admission has been approved.</div>'+(found.assignedStudentId?'<div style="margin-top:10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px;"><div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Student Details</div><div style="font-size:12px;color:var(--accent);">Student ID: <strong>'+found.assignedStudentId+'</strong></div>'+(found.assignedFormNo?'<div style="font-size:11px;color:var(--muted);margin-top:2px;">Form #'+found.assignedFormNo+(found.assignedRoll?' · Roll '+found.assignedRoll:'')+'</div>':'')+'</div>':'')+(found.approvedAt?'<div style="font-size:9px;color:var(--muted2);margin-top:8px;">Approved: '+found.approvedAt+'</div>':'')+'</div>';
+    } else if(s==='declined'){
+      box.innerHTML='<div style="background:rgba(248,92,92,.08);border:1px solid rgba(248,92,92,.2);border-radius:8px;padding:16px;"><div style="font-size:14px;color:var(--red);margin-bottom:8px;">❌ আবেদন প্রত্যাখ্যান হয়েছে · Application Declined</div><div style="font-size:11px;color:var(--text);line-height:1.8;">দুঃখিত, আপনার আবেদন প্রত্যাখ্যান করা হয়েছে।<br>We regret to inform you that your application has been declined.</div>'+(found.declineReason?'<div style="margin-top:10px;background:var(--surface2);border:1px solid rgba(248,92,92,.15);border-radius:6px;padding:10px;"><div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);margin-bottom:4px;">প্রত্যাখ্যানের কারণ · Reason</div><div style="font-size:11px;color:var(--text);">'+found.declineReason+'</div></div>':'')+(found.declinedAt?'<div style="font-size:9px;color:var(--muted2);margin-top:8px;">Declined: '+found.declinedAt+'</div>':'')+'</div>';
+    } else if(s==='waitlisted'){
+      box.innerHTML='<div style="background:rgba(248,192,92,.08);border:1px solid rgba(248,192,92,.2);border-radius:8px;padding:16px;"><div style="font-size:14px;color:var(--amber);margin-bottom:8px;">⏳ অপেক্ষমান তালিকায় · Waitlisted</div><div style="font-size:11px;color:var(--text);line-height:1.8;">আপনার আবেদন অপেক্ষমান তালিকায় রয়েছে। শীঘ্রই আপনাকে জানানো হবে।<br>Your application is on the waitlist. You will be notified soon.</div></div>';
+    } else {
+      // Pending — check if viewed
+      var viewedMsg='';
+      if(found.viewedAt){
+        viewedMsg='<div style="margin-top:10px;background:rgba(92,110,248,.08);border:1px solid rgba(92,110,248,.2);border-radius:6px;padding:10px;"><div style="font-size:11px;color:var(--accent);line-height:1.7;">👀 একজন প্রশাসক আপনার আবেদন দেখেছেন! আপনি শীঘ্রই ফলাফল পেতে পারেন। পরবর্তী সময়ে আবার যাচাই করুন। শুভকামনা!<br><span style="font-size:10px;color:var(--muted);">An admin has reviewed your application! You may have the result very soon. Check again next time. Good luck!</span></div></div>';
+      }
+      box.innerHTML='<div style="background:rgba(248,192,92,.06);border:1px solid rgba(248,192,92,.15);border-radius:8px;padding:16px;"><div style="font-size:14px;color:var(--amber);margin-bottom:8px;">⏳ পর্যালোচনাধীন · Under Review</div><div style="font-size:11px;color:var(--text);line-height:1.8;">আপনার আবেদন বর্তমানে পর্যালোচনাধীন। অনুগ্রহ করে কমপক্ষে <strong style="color:var(--amber);">৫ কার্যদিবস</strong> অপেক্ষা করুন।<br>Your application is currently under review. Please allow at least <strong style="color:var(--amber);">5 business days</strong> for processing.</div>'+viewedMsg+'</div>';
+    }
+  }).catch(function(){box.innerHTML='<div style="color:var(--red);font-size:11px;">সার্ভারে সংযোগ করা যায়নি · Could not connect to server. Please try again later.</div>';});
 }
 </script>
 </body>
