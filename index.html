@@ -37,7 +37,47 @@
   </style>
 </head>
 <body>
-<div class="fc" id="formArea">
+
+<!-- ══ LANDING PAGE — Choose Apply or Check Status ══ -->
+<div id="landingPage" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div style="max-width:500px;width:100%;text-align:center;">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--text);margin-bottom:6px;">ভর্তি আবেদন</div>
+    <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:.1em;margin-bottom:40px;">Admission Application Portal</div>
+
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <!-- Apply Online -->
+      <div onclick="showApplyForm()" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px 24px;cursor:pointer;transition:all .25s;text-align:left;" onmouseover="this.style.borderColor='rgba(92,110,248,.5)';this.style.background='rgba(92,110,248,.04)'" onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--surface)'">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+          <div style="width:44px;height:44px;border-radius:10px;background:rgba(92,110,248,.1);border:1px solid rgba(92,110,248,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg fill="none" stroke="#5c6ef8" stroke-width="1.4" viewBox="0 0 24 24" width="22" height="22"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+          </div>
+          <div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--text);">অনলাইনে আবেদন করুন</div>
+            <div style="font-size:11px;color:var(--accent);letter-spacing:.06em;">Apply Online</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;padding-left:58px;">নতুন শিক্ষার্থী ভর্তির জন্য আবেদন ফর্ম পূরণ করুন।<br><span style="color:var(--muted2);">Fill out the admission application form for a new student.</span></div>
+      </div>
+
+      <!-- Check Status -->
+      <div onclick="showStatusCheck()" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px 24px;cursor:pointer;transition:all .25s;text-align:left;" onmouseover="this.style.borderColor='rgba(248,192,92,.5)';this.style.background='rgba(248,192,92,.04)'" onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--surface)'">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+          <div style="width:44px;height:44px;border-radius:10px;background:rgba(248,192,92,.1);border:1px solid rgba(248,192,92,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg fill="none" stroke="#f8c05c" stroke-width="1.4" viewBox="0 0 24 24" width="22" height="22"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5l4 4"/></svg>
+          </div>
+          <div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--text);">আবেদনের অবস্থা যাচাই</div>
+            <div style="font-size:11px;color:var(--amber);letter-spacing:.06em;">Check Application Status</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;padding-left:58px;">আপনার আবেদন আইডি দিয়ে আবেদনের বর্তমান অবস্থা দেখুন।<br><span style="color:var(--muted2);">Check your application status using your Application ID.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fc" id="formArea" style="display:none;">
+  <div style="margin-bottom:16px;"><button onclick="showLanding()" style="font-size:10px;padding:6px 14px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:4px;cursor:pointer;letter-spacing:.06em;">← Back</button></div>
   <div class="fh"><div class="fb">ভর্তি আবেদনপত্র · Admission Application</div>
     <div class="ft">শিক্ষার্থী ভর্তি ফর্ম</div>
     <div class="fs">সকল প্রয়োজনীয় তথ্য পূরণ করুন এবং আবেদন জমা দিন।<br>Fill out all required fields and submit your application.<br>প্রতিষ্ঠান আবেদন পর্যালোচনা করে যোগাযোগ করবে।</div></div>
@@ -106,11 +146,17 @@
       <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);">আবেদন আইডি · Application ID</div>
       <div id="sId" style="font-size:18px;font-weight:500;color:var(--accent);letter-spacing:.12em;margin-top:4px;">—</div>
     </div>
+    <br>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px;">
+      <button onclick="showStatusCheck();document.getElementById('statusAppId').value=document.getElementById('sId').textContent;" style="font-size:11px;padding:10px 20px;background:rgba(248,192,92,.1);border:1px solid rgba(248,192,92,.25);color:var(--amber);border-radius:6px;cursor:pointer;letter-spacing:.06em;">📋 Check Status</button>
+      <button onclick="showLanding()" style="font-size:11px;padding:10px 20px;background:rgba(92,110,248,.08);border:1px solid rgba(92,110,248,.2);color:var(--accent);border-radius:6px;cursor:pointer;letter-spacing:.06em;">← Back to Home</button>
+    </div>
   </div>
 </div>
 
 <!-- ══ APPLICATION STATUS CHECKER ══ -->
-<div id="statusChecker" style="max-width:520px;margin:40px auto;padding:0 16px;">
+<div id="statusChecker" style="max-width:520px;margin:40px auto;padding:0 16px;display:none;">
+  <div style="margin-bottom:16px;"><button onclick="showLanding()" style="font-size:10px;padding:6px 14px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:4px;cursor:pointer;letter-spacing:.06em;">← Back</button></div>
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;">
     <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">📋 আবেদনের অবস্থা যাচাই · Check Application Status</div>
     <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:14px;">আপনার আবেদন আইডি লিখুন · Enter your Application ID to check status</div>
@@ -126,6 +172,28 @@
 <script>
 var FIREBASE_URL='https://sms-admission-4f632-default-rtdb.asia-southeast1.firebasedatabase.app';
 var _p1=null,_p2=null;
+
+function showLanding(){
+  document.getElementById('landingPage').style.display='flex';
+  document.getElementById('formArea').style.display='none';
+  document.getElementById('ss').classList.remove('show');
+  document.getElementById('statusChecker').style.display='none';
+  window.scrollTo(0,0);
+}
+function showApplyForm(){
+  document.getElementById('landingPage').style.display='none';
+  document.getElementById('formArea').style.display='';
+  document.getElementById('statusChecker').style.display='none';
+  window.scrollTo(0,0);
+}
+function showStatusCheck(){
+  document.getElementById('landingPage').style.display='none';
+  document.getElementById('formArea').style.display='none';
+  document.getElementById('ss').classList.remove('show');
+  document.getElementById('statusChecker').style.display='';
+  document.getElementById('statusResult').innerHTML='';
+  window.scrollTo(0,0);
+}
 function eBn(el){el.value=el.value.replace(/[A-Za-z0-9]/g,'');}
 function eEn(el){el.value=el.value.replace(/[^\x20-\x7E]/g,'');}
 var PDB=[{d:'880',f:'🇧🇩',n:'Bangladesh',mx:13},{d:'91',f:'🇮🇳',n:'India',mx:12},{d:'92',f:'🇵🇰',n:'Pakistan',mx:12},{d:'966',f:'🇸🇦',n:'Saudi Arabia',mx:12},{d:'971',f:'🇦🇪',n:'UAE',mx:12},{d:'974',f:'🇶🇦',n:'Qatar',mx:11},{d:'965',f:'🇰🇼',n:'Kuwait',mx:11},{d:'968',f:'🇴🇲',n:'Oman',mx:11},{d:'973',f:'🇧🇭',n:'Bahrain',mx:11},{d:'60',f:'🇲🇾',n:'Malaysia',mx:11},{d:'65',f:'🇸🇬',n:'Singapore',mx:10},{d:'1',f:'🇺🇸',n:'US/Canada',mx:11},{d:'44',f:'🇬🇧',n:'UK',mx:12},{d:'39',f:'🇮🇹',n:'Italy',mx:12}];
